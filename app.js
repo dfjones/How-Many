@@ -12,34 +12,44 @@ twit.verifyCredentials(function (err, data) {
 
 twit.stream("statuses/filter", { follow: creds.followId }, function(stream) {
   stream.on("data", function (data) {
-    console.log(data);
     var user = data.user;
     var status = data;
 
-    if (status && status.in_reply_to_screen_name === creds.username) {
-
-      var message = status.text;
-      var mbody = message;
-
-      if (message.indexOf("@") >= 0) {
-        mbody = message.substring(message.indexOf(" ", message.indexOf("@")));
-      }
-
-      console.log("mbody: ", mbody);
-
-      var response = genMessage(mbody);
+    var response = handleMessage(status, user);
+    if (response) {
       twit.updateStatus("@" + user.screen_name + " " + response, {
         in_reply_to_status_id: status.id
       }, function (err, data) {
         if (err) {
           console.log("Error: ", err);
         }
-        console.log("Data: ", data);
+        //console.log("Data: ", data);
+        console.log("Replied: " + response);
       });
     }
-
   });
 });
+
+var handleMessage = function(status, user) {
+  if (status && status.in_reply_to_screen_name === creds.username) {
+
+    var message = status.text;
+    var mbody = message;
+
+    console.log("message: ", message);
+
+    if (message.indexOf("@") >= 0) {
+      mbody = message.substring(message.indexOf(" ", message.indexOf("@")));
+    }
+
+    console.log("mbody: ", mbody);
+
+    var response = genMessage(mbody);
+    return response;
+  }
+
+  return null;
+};
 
 // Best matrix ever
 var drinkMatrix = {
@@ -93,7 +103,7 @@ var keywords = {
 
 var genMessage = function(m) {
   if (m.indexOf('?') !== -1) {
-    var key = m.split('?')[0];
+    var key = m.split('?')[0].trim();
     var vals = [];
     console.log(key);
     switch (key) {
@@ -108,6 +118,7 @@ var genMessage = function(m) {
         break;
     }
 
+    console.log("vals:", vals);
     return vals.join(', ')
   }
   else if (m.indexOf(':')) {
@@ -168,3 +179,4 @@ var isIn = function(arr, key) {
 }
 
 exports.genMessage = genMessage;
+exports.handleMessage = handleMessage;
