@@ -123,11 +123,20 @@ var genMessage = function(m) {
   }
   else if (m.indexOf(':')) {
     var parts = m.split(',');
-    var pairs = {};
+    var pairs = {
+      bonus: []
+    };
     parts.forEach(function (p) {
       var pair = p.split(':');
       if (pair.length === 2) {
-        pairs[pair[0].trim()] = pair[1].trim();
+        var k = pair[0].trim();
+        var v = pair[1].trim();
+        if (k === "bonus") {
+          pairs[k].push(v);
+        }
+        else {
+          pairs[k] = v;
+        }
       }
       else {
         return errorText;
@@ -145,9 +154,12 @@ var genMessage = function(m) {
         total += dm[pairs["me"]];
       }
 
-      if (isIn(pairKeys, "bonus") && 
-        isIn(Object.keys(drinkMatrix["bonus"]), pairs["bonus"])) {
-        total += drinkMatrix["bonus"][pairs["bonus"]];
+      if (isIn(pairKeys, "bonus")) {
+        pairs["bonus"].forEach(function(b) {
+          if (isIn(Object.keys(drinkMatrix["bonus"]), b)) {
+            total += drinkMatrix["bonus"][b];
+          }
+        });
       }
 
       if (total > 1) {
