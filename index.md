@@ -1,3 +1,8 @@
+---
+title: How Many
+layout: default
+---
+
 How To Use
 ==========
 
