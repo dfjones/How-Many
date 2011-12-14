@@ -33,7 +33,7 @@ twit.stream("statuses/filter", { follow: creds.followId }, function(stream) {
 var handleMessage = function(status, user) {
   if (status && status.in_reply_to_screen_name === creds.username) {
 
-    var message = status.text;
+    var message = status.text.toLowerCase();
     var mbody = message;
 
     console.log("message: ", message);
